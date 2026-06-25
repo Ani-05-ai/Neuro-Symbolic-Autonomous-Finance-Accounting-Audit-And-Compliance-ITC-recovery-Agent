@@ -12,14 +12,18 @@ Acceptance criteria
 from __future__ import annotations
 
 import uuid
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import pytest
 from pydantic import BaseModel
 
 from itc.app import create_app
 from itc.intelligence.gateway import AbstractLLMGateway, StubLLMGateway
-from itc.intelligence.models import LLMTrace
 
+if TYPE_CHECKING:
+    from itc.intelligence.models import LLMTrace
+
+S = TypeVar("S", bound=BaseModel)
 
 # ---------------------------------------------------------------------------
 # Helpers / fixtures
@@ -33,7 +37,7 @@ class SampleSchema(BaseModel):
     confidence: float = 0.0
 
 
-@pytest.fixture()
+@pytest.fixture
 def gateway() -> StubLLMGateway:
     return StubLLMGateway()
 
@@ -100,9 +104,7 @@ class TestStubReturnsValidSchemaObject:
 
         assert isinstance(result, SampleSchema)
 
-    def test_return_value_has_expected_defaults(
-        self, gateway: StubLLMGateway
-    ) -> None:
+    def test_return_value_has_expected_defaults(self, gateway: StubLLMGateway) -> None:
         """Returned instance carries the schema's default field values."""
         result = gateway.call(
             task="summarise",
@@ -132,12 +134,18 @@ class TestGatewayIsSwappableViaAppFactory:
         class RecordingGateway(AbstractLLMGateway):
             called: bool = False
 
-            def call(self, task, context, tenant_id, response_schema):
+            def call(
+                self,
+                task: str,
+                context: dict[str, Any],
+                tenant_id: str,
+                response_schema: type[S],
+            ) -> S:
                 RecordingGateway.called = True
                 return response_schema.model_construct()
 
             @property
-            def traces(self):
+            def traces(self) -> list[LLMTrace]:
                 return []
 
         gw: AbstractLLMGateway = RecordingGateway()

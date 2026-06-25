@@ -16,6 +16,10 @@ from __future__ import annotations
 import json
 import logging
 from io import StringIO
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 import pytest
 
@@ -33,8 +37,8 @@ from itc.core.logging import (
 # Sample sensitive data
 # ---------------------------------------------------------------------------
 
-VALID_GSTIN = "29ABCDE1234F1Z5"        # real-format GSTIN
-VALID_GSTIN_2 = "07AAGCM8702N1Z3"     # another real-format GSTIN
+VALID_GSTIN = "29ABCDE1234F1Z5"  # real-format GSTIN
+VALID_GSTIN_2 = "07AAGCM8702N1Z3"  # another real-format GSTIN
 AMOUNT_PLAIN = "1500.00"
 AMOUNT_SYMBOL = "₹1500.00"
 AMOUNT_RS = "Rs 250"
@@ -45,19 +49,19 @@ AMOUNT_RS = "Rs 250"
 
 
 @pytest.fixture(autouse=True)
-def _reset_context():
+def _reset_context() -> Generator[None]:
     """Ensure context vars are clean before and after every test."""
     clear_context()
     yield
     clear_context()
 
 
-@pytest.fixture()
+@pytest.fixture
 def log_stream() -> StringIO:
     return StringIO()
 
 
-@pytest.fixture()
+@pytest.fixture
 def debug_logger(log_stream: StringIO) -> logging.Logger:
     """
     Returns a fresh logger wired with JsonFormatter + RedactionFilter at DEBUG.
@@ -75,7 +79,7 @@ def debug_logger(log_stream: StringIO) -> logging.Logger:
     return logger
 
 
-@pytest.fixture()
+@pytest.fixture
 def info_logger(log_stream: StringIO) -> logging.Logger:
     """Same setup but at INFO level — redaction should NOT fire at INFO."""
     handler = logging.StreamHandler(log_stream)
@@ -90,10 +94,11 @@ def info_logger(log_stream: StringIO) -> logging.Logger:
     return logger
 
 
-def _parse(stream: StringIO) -> dict:
+def _parse(stream: StringIO) -> dict[str, Any]:
     """Return the first JSON object written to stream."""
     stream.seek(0)
-    return json.loads(stream.readline())
+    result: dict[str, Any] = json.loads(stream.readline())
+    return result
 
 
 # ===========================================================================
@@ -136,7 +141,7 @@ class TestGstinRedactionAtDebug:
         self, debug_logger: logging.Logger, log_stream: StringIO
     ) -> None:
         debug_logger.debug("GSTIN: %s", VALID_GSTIN)
-        payload = _parse(log_stream)           # must not raise
+        payload = _parse(log_stream)  # must not raise
         assert payload["level"] == "DEBUG"
 
 
@@ -204,8 +209,14 @@ class TestJsonStructure:
         debug_logger.debug("hello")
         payload = _parse(log_stream)
 
-        for field in ("timestamp", "level", "logger", "message",
-                      "tenant_id", "trace_id"):
+        for field in (
+            "timestamp",
+            "level",
+            "logger",
+            "message",
+            "tenant_id",
+            "trace_id",
+        ):
             assert field in payload, f"Missing mandatory field: {field}"
 
     def test_level_field_is_correct(
@@ -268,17 +279,15 @@ class TestContextBinding:
 
 class TestConfigureLogging:
     def test_configure_logging_does_not_raise(self) -> None:
-        configure_logging(level="DEBUG")   # must not raise
-        configure_logging(level="INFO")    # reset to INFO
+        configure_logging(level="DEBUG")  # must not raise
+        configure_logging(level="INFO")  # reset to INFO
 
     def test_get_logger_returns_logger_instance(self) -> None:
         logger = get_logger("itc.test")
         assert isinstance(logger, logging.Logger)
         assert logger.name == "itc.test"
 
-    def test_redaction_active_after_configure_debug(
-        self, log_stream: StringIO
-    ) -> None:
+    def test_redaction_active_after_configure_debug(self, log_stream: StringIO) -> None:
         """
         End-to-end: after configure_logging(DEBUG), root logger redacts GSTINs.
         """

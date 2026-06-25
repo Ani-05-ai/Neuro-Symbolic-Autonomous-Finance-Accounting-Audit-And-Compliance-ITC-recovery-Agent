@@ -26,9 +26,13 @@ Usage
     bind_context(tenant_id="T1", trace_id="abc-123")
 
     logger = get_logger(__name__)
-    logger.debug("Processing invoice", extra={"gstin": "29ABCDE1234F1Z5", "amount": "1500.00"})
+    logger.debug(
+        "Processing invoice",
+        extra={"gstin": "29ABCDE1234F1Z5", "amount": "1500.00"},
+    )
     # → {"level":"DEBUG","logger":"...","message":"Processing invoice",
-    #    "gstin":"[REDACTED]","amount":"[REDACTED]","tenant_id":"T1","trace_id":"abc-123",...}
+    #    "gstin":"[REDACTED]","amount":"[REDACTED]",
+    #    "tenant_id":"T1","trace_id":"abc-123",...}
 """
 
 from __future__ import annotations
@@ -37,7 +41,7 @@ import json
 import logging
 import re
 from contextvars import ContextVar
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Final
 
 # ---------------------------------------------------------------------------
@@ -121,23 +125,38 @@ class JsonFormatter(logging.Formatter):
     # Fields that exist on every LogRecord but are not useful in JSON output
     _SKIP: Final[frozenset[str]] = frozenset(
         {
-            "args", "created", "exc_info", "exc_text", "filename",
-            "funcName", "levelname", "levelno", "lineno", "message",
-            "module", "msecs", "msg", "name", "pathname", "process",
-            "processName", "relativeCreated", "stack_info", "taskName",
-            "thread", "threadName",
+            "args",
+            "created",
+            "exc_info",
+            "exc_text",
+            "filename",
+            "funcName",
+            "levelname",
+            "levelno",
+            "lineno",
+            "message",
+            "module",
+            "msecs",
+            "msg",
+            "name",
+            "pathname",
+            "process",
+            "processName",
+            "relativeCreated",
+            "stack_info",
+            "taskName",
+            "thread",
+            "threadName",
         }
     )
 
-    def format(self, record: logging.LogRecord) -> str:  # noqa: A003
+    def format(self, record: logging.LogRecord) -> str:
         record.message = record.getMessage()
         if record.exc_info:
             record.exc_text = self.formatException(record.exc_info)
 
         payload: dict[str, Any] = {
-            "timestamp": datetime.fromtimestamp(
-                record.created, tz=timezone.utc
-            ).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.message,
@@ -169,18 +188,37 @@ class RedactionFilter(logging.Filter):
     level checks and before serialisation.  Callers never touch redaction.
     """
 
-    def filter(self, record: logging.LogRecord) -> bool:  # noqa: A003
+    def filter(self, record: logging.LogRecord) -> bool:
         if record.levelno == logging.DEBUG:
             # Redact the main message
             record.msg = _redact_value(str(record.getMessage()))
             record.args = ()  # args already merged into msg above
 
             # Redact any extra fields attached to the record
-            skip = {"name", "msg", "args", "levelname", "levelno",
-                    "pathname", "filename", "module", "exc_info", "exc_text",
-                    "stack_info", "lineno", "funcName", "created", "msecs",
-                    "relativeCreated", "thread", "threadName", "processName",
-                    "process", "taskName", "message"}
+            skip = {
+                "name",
+                "msg",
+                "args",
+                "levelname",
+                "levelno",
+                "pathname",
+                "filename",
+                "module",
+                "exc_info",
+                "exc_text",
+                "stack_info",
+                "lineno",
+                "funcName",
+                "created",
+                "msecs",
+                "relativeCreated",
+                "thread",
+                "threadName",
+                "processName",
+                "process",
+                "taskName",
+                "message",
+            }
             for key in list(record.__dict__):
                 if key not in skip and not key.startswith("_"):
                     setattr(record, key, _redact_value(getattr(record, key)))

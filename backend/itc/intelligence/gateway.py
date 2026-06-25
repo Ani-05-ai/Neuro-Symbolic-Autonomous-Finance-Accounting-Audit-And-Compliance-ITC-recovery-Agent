@@ -16,7 +16,7 @@ to ``AbstractLLMGateway`` in the app factory — no call-site changes needed.
 from __future__ import annotations
 
 import abc
-from typing import Any, Type, TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel
 
@@ -39,7 +39,7 @@ class AbstractLLMGateway(abc.ABC):
         task: str,
         context: dict[str, Any],
         tenant_id: str,
-        response_schema: Type[S],
+        response_schema: type[S],
     ) -> S:
         """
         Parameters
@@ -94,7 +94,7 @@ class StubLLMGateway(AbstractLLMGateway):
         task: str,
         context: dict[str, Any],
         tenant_id: str,
-        response_schema: Type[S],
+        response_schema: type[S],
     ) -> S:
         # 1. Write trace BEFORE returning (audit-first pattern)
         trace = LLMTrace(
