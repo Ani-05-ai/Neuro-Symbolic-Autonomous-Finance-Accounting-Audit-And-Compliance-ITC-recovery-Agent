@@ -1,8 +1,24 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-app = FastAPI(title="ITC Recovery API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
 
 
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title="ITC Recovery API",
+        lifespan=lifespan,
+    )
+
+    @app.get("/health")
+    async def health() -> dict[str, str]:
+        return {"status": "ok"}
+
+    return app
+
+
+app = create_app()
