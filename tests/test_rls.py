@@ -166,6 +166,42 @@ def test_rls_policies_are_enabled_and_forced_on_tenant_tables() -> None:
         engine.dispose()
 
 
+def test_rls_policies_use_tenant_setting_for_app_role() -> None:
+    database_url = _database_url()
+    _upgrade_to_head(database_url)
+
+    engine = create_engine(database_url)
+    try:
+        with engine.connect() as connection:
+            rows = connection.execute(
+                text("""
+                    SELECT
+                        tablename,
+                        policyname,
+                        roles,
+                        qual,
+                        with_check
+                    FROM pg_policies
+                    WHERE schemaname = 'public'
+                      AND tablename = ANY(:table_names)
+                    """),
+                {"table_names": list(RLS_TABLES)},
+            ).mappings()
+
+            policies = {row["tablename"]: row for row in rows}
+
+        assert set(policies) == RLS_TABLES
+        for table_name, policy in policies.items():
+            assert policy["policyname"] == f"{table_name}_tenant_isolation"
+            assert APP_ROLE in policy["roles"]
+            assert "tenant_id" in policy["qual"]
+            assert "current_setting('app.tenant_id'::text)" in policy["qual"]
+            assert "tenant_id" in policy["with_check"]
+            assert "current_setting('app.tenant_id'::text)" in policy["with_check"]
+    finally:
+        engine.dispose()
+
+
 def test_app_role_query_without_tenant_where_is_limited_to_current_tenant() -> None:
     database_url = _database_url()
     _upgrade_to_head(database_url)
