@@ -80,5 +80,6 @@ warn_return_any = false
 # pytest + pytest-asyncio
 # ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
-testpaths = ["itc/tests"]
+testpaths = ["tests/unit"]
 asyncio_mode = "auto"
+pythonpath = ["."]
