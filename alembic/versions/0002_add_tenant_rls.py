@@ -18,8 +18,8 @@ APP_ROLE = "recoveritc_app"
 TENANT_SCOPED_TABLES = (
     "cases",
     "verdicts",
-    "llm_traces",
-    "audit_logs",
+    "llm_trace",
+    "audit_log",
     "outreach_records",
     "column_mappings",
 )
