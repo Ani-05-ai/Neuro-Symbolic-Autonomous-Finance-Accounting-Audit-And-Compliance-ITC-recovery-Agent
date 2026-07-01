@@ -12,7 +12,6 @@ uv run black --check .
 uv run mypy src backend tests
 uv run pytest --cov
 ```
-
 The GitHub Actions workflow runs on pushes to `main` and on all pull requests. It
 uses `uv sync --frozen --group dev`, checks linting, formatting, typing, tests,
 and enforces overall coverage of at least 85%.
