@@ -13,7 +13,7 @@ JWT_ALGORITHM = "RS256"
 @lru_cache
 def _get_jwt_public_key() -> str:
     settings = Settings()
-    with open(settings.jwt_public_key_path, "r") as f:
+    with open(settings.jwt_public_key_path) as f:
         return f.read()
 
 
@@ -52,7 +52,10 @@ async def get_tenant_context(request: Request, db: AsyncSession) -> str:
 
     Usage: any route touching the DB must declare this dependency:
         @router.get("/cases")
-        async def list_cases(tenant_id: str = Depends(get_tenant_context), db=Depends(get_db)):
+        async def list_cases(
+            tenant_id: str = Depends(get_tenant_context),
+            db=Depends(get_db),
+        ):
             ...
     """
     tenant_id = _extract_tenant_id(request)

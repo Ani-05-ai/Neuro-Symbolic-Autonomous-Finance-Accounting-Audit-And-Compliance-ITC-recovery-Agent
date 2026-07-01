@@ -6,7 +6,7 @@ from jose import jwt
 
 from itc.api.deps import get_tenant_context
 
-with open("secrets/jwt_private.pem", "r") as f:
+with open("secrets/jwt_private.pem") as f:
     PRIVATE_KEY = f.read()
 
 
