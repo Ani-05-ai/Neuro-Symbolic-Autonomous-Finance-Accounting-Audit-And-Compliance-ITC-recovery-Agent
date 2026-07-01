@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from typing import Any
-from uuid import UUID as PythonUUID
+from uuid import UUID
 
 from sqlalchemy import (
     Boolean,
@@ -15,7 +15,8 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -26,7 +27,11 @@ class Base(DeclarativeBase):
 class TenantScopedMixin:
     """Columns shared by every tenant-owned table."""
 
-    tenant_id: Mapped[PythonUUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    tenant_id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
+        nullable=False,
+        index=True,
+    )
 
 
 class TimestampMixin:
@@ -49,8 +54,8 @@ class Case(TenantScopedMixin, TimestampMixin, Base):
 
     __tablename__ = "cases"
 
-    id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
@@ -67,8 +72,8 @@ class Case(TenantScopedMixin, TimestampMixin, Base):
         nullable=False,
         server_default=text("0.0"),
     )
-    verdict_id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    verdict_id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         ForeignKey("verdicts.id", ondelete="RESTRICT"),
         nullable=False,
         index=True,
@@ -80,8 +85,8 @@ class Verdict(TenantScopedMixin, TimestampMixin, Base):
 
     __tablename__ = "verdicts"
 
-    id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
@@ -95,8 +100,8 @@ class LLMTrace(TenantScopedMixin, Base):
 
     __tablename__ = "llm_trace"
 
-    id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
@@ -105,7 +110,11 @@ class LLMTrace(TenantScopedMixin, Base):
     raw_output: Mapped[str | None] = mapped_column(Text)
     validation_passed: Mapped[bool] = mapped_column(Boolean, nullable=False)
     validation_error: Mapped[str | None] = mapped_column(Text)
-    retries: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    retries: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        server_default=text("0"),
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -118,13 +127,13 @@ class AuditLog(TenantScopedMixin, Base):
 
     __tablename__ = "audit_log"
 
-    id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
-    case_id: Mapped[PythonUUID | None] = mapped_column(
-        UUID(as_uuid=True),
+    case_id: Mapped[UUID | None] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         ForeignKey("cases.id", ondelete="SET NULL"),
         index=True,
     )
@@ -147,13 +156,13 @@ class OutreachRecord(TenantScopedMixin, TimestampMixin, Base):
 
     __tablename__ = "outreach_records"
 
-    id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
-    case_id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    case_id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         ForeignKey("cases.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -179,8 +188,8 @@ class ColumnMapping(TenantScopedMixin, TimestampMixin, Base):
         ),
     )
 
-    id: Mapped[PythonUUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        postgresql.UUID(as_uuid=True),
         primary_key=True,
         server_default=text("gen_random_uuid()"),
     )
