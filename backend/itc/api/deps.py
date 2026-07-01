@@ -1,18 +1,19 @@
 from functools import lru_cache
+from typing import Any, cast
 
 from fastapi import HTTPException, Request, status
 from jose import JWTError, jwt
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from itc.core.config import Settings
+from itc.core.config import get_settings
 
 JWT_ALGORITHM = "RS256"
 
 
 @lru_cache
 def _get_jwt_public_key() -> str:
-    settings = Settings()
+    settings = get_settings()
     with open(settings.jwt_public_key_path) as f:
         return f.read()
 
@@ -29,7 +30,10 @@ def _extract_tenant_id(request: Request) -> str:
     public_key = _get_jwt_public_key()
 
     try:
-        payload = jwt.decode(token, public_key, algorithms=[JWT_ALGORITHM])
+        payload = cast(
+            "dict[str, Any]",
+            jwt.decode(token, public_key, algorithms=[JWT_ALGORITHM]),
+        )
     except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -37,7 +41,7 @@ def _extract_tenant_id(request: Request) -> str:
         ) from exc
 
     tenant_id = payload.get("tenant_id")
-    if not tenant_id:
+    if not isinstance(tenant_id, str) or not tenant_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token missing tenant_id claim",

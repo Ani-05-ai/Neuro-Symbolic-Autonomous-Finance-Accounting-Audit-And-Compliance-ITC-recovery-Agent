@@ -13,3 +13,7 @@ class Settings(BaseSettings):
     jwt_public_key_path: str
 
     use_llm_matcher: bool = False
+
+
+def get_settings() -> Settings:
+    return Settings()  # type: ignore[call-arg]

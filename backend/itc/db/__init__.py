@@ -1,6 +1,6 @@
 """Database models and migration metadata."""
 
-from backend.itc.db.models import (
+from itc.db.models import (
     AuditLog,
     Base,
     Case,

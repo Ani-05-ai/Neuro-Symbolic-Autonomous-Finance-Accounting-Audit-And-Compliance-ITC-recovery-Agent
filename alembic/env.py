@@ -3,9 +3,10 @@
 from logging.config import fileConfig
 from os import getenv
 
-from alembic import context
-from backend.itc.db.models import Base
 from sqlalchemy import engine_from_config, pool
+from alembic import context
+
+from itc.db.models import Base
 
 config = context.config
 
