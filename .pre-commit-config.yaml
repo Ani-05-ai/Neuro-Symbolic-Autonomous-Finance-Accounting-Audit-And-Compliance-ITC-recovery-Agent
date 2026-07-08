@@ -1,0 +1,72 @@
+# Pre-commit hook configuration for the ITC monorepo.
+#
+# Runs on every `git commit`. CI runs `pre-commit run --all-files`.
+#
+# Hooks (in order):
+#   1. General file hygiene (trailing whitespace, EOF newline, YAML/TOML syntax)
+#   2. Ruff  — fast lint + import sort  (replaces flake8 + isort)
+#   3. Black — opinionated formatter
+#   4. mypy  — strict static type checking
+#
+# To install locally:
+#   pre-commit install
+#
+# To run manually against all files:
+#   pre-commit run --all-files
+
+repos:
+  # ---------------------------------------------------------------------------
+  # 1. General hygiene (stdlib hooks, no extra install)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: debug-statements
+        language_version: python3.13
+
+  # ---------------------------------------------------------------------------
+  # 2. Ruff — lint + isort (fast, replaces flake8/pylint/isort)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.13
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  # ---------------------------------------------------------------------------
+  # 3. Black — formatter (authoritative style, Ruff defers to it)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/psf/black
+    rev: 26.1.0
+    hooks:
+      - id: black
+        language_version: python3.13
+        files: ^backend/
+
+  # ---------------------------------------------------------------------------
+  # 4. mypy — strict type checking (local install so it sees project deps)
+  # ---------------------------------------------------------------------------
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy (strict)
+        entry: py -3.13 -m mypy backend/itc
+        language: system
+        types: [python]
+        files: ^backend/
+        args:
+          - --config-file=backend/pyproject.toml
+          - --ignore-missing-imports
+        pass_filenames: false
+        additional_dependencies: []

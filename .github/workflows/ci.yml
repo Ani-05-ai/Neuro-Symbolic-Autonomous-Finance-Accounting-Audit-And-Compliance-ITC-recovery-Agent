@@ -1,0 +1,69 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.13"
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: itc_user
+          POSTGRES_PASSWORD: changeme
+          POSTGRES_DB: itc
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U itc_user -d itc"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install uv and set Python
+        uses: astral-sh/setup-uv@v8.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Install dependencies
+        working-directory: backend
+        run: uv sync --frozen --group dev
+
+      - name: Lint
+        working-directory: backend
+        run: uv run ruff check .
+
+      - name: Check formatting
+        working-directory: backend
+        run: uv run black --check .
+
+      - name: Type check
+        working-directory: backend
+        run: uv run mypy itc
+
+      - name: Test with coverage gate
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+asyncpg://itc_user:changeme@localhost:5432/itc
+        run: uv run pytest
+
+      - name: Minimize uv cache
+        run: uv cache prune --ci
