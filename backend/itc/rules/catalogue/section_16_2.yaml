@@ -1,0 +1,77 @@
+# Section 16(2) CGST Act 2017 -- the four core eligibility conditions.
+# Evaluated in order (a) -> (b) -> (c) -> (d); the Rule Engine short-circuits
+# on the first failing condition. (d) is special: its "failure" (invoice not
+# yet present in GSTR-2B) does not mean ineligible outright -- it routes to
+# Rule 36(4) provisional treatment instead (see engine.py + rule_36_4.yaml
+# for the mandatory 01.01.2022 date-gate override on top of this).
+
+- rule_id: section_16_2_a
+  section: "Section 16(2)(a) CGST Act 2017"
+  description: "Buyer must be a registered person to claim ITC"
+  version: "1.0"
+  last_reviewed: "2026-05-01"
+  reviewer: "Tax Advisor Name"
+  conditions:
+    - kind: field_equals
+      field: buyer_is_registered
+      value: true
+  on_fail:
+    verdict: ineligible
+    reason: >-
+      Buyer is not a registered person under GST for tax period
+      {tax_period}; Section 16(2)(a) not satisfied.
+
+- rule_id: section_16_2_b
+  section: "Section 16(2)(b) CGST Act 2017"
+  description: "Goods or services must actually have been received by the buyer"
+  version: "1.0"
+  last_reviewed: "2026-05-01"
+  reviewer: "Tax Advisor Name"
+  conditions:
+    - kind: field_equals
+      field: goods_received
+      value: true
+  on_fail:
+    verdict: ineligible
+    reason: >-
+      Goods/services not received for invoice under GSTIN {vendor_gstin},
+      tax period {tax_period}; Section 16(2)(b) not satisfied.
+
+- rule_id: section_16_2_c
+  section: "Section 16(2)(c) CGST Act 2017"
+  description: "ITC eligible only if supplier filed GSTR-1 with matching details"
+  version: "1.0"
+  last_reviewed: "2026-05-01"
+  reviewer: "Tax Advisor Name"
+  conditions:
+    - kind: field_equals
+      field: supplier_filed_gstr1
+      value: true
+  on_fail:
+    verdict: ineligible
+    reason: >-
+      Supplier GSTIN {vendor_gstin} not found in GSTR-1 for period
+      {tax_period}. Section 16(2)(c) not satisfied.
+
+- rule_id: section_16_2_d
+  section: "Section 16(2)(d) CGST Act 2017"
+  description: >-
+    Tax charged must actually be paid to the government, evidenced by the
+    invoice's presence in the buyer's GSTR-2B for the period.
+  version: "1.0"
+  last_reviewed: "2026-05-01"
+  reviewer: "Tax Advisor Name"
+  conditions:
+    - kind: field_equals
+      field: present_in_gstr2b
+      value: true
+  on_fail:
+    # NOTE: this is deliberately "provisional", not "ineligible" -- an
+    # invoice absent from GSTR-2B is exactly the case Rule 36(4)
+    # provisional ITC exists for. Whether "provisional" survives as the
+    # final verdict depends on the mandatory 01.01.2022 date-gate override
+    # applied by engine.py on top of this base evaluation.
+    verdict: provisional
+    reason: >-
+      Invoice not present in GSTR-2B for period {tax_period}; ITC
+      provisional pending supplier reconciliation (Rule 36(4)).

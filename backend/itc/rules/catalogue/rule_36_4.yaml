@@ -1,0 +1,26 @@
+# Rule 36(4) CGST Rules 2017 -- provisional ITC, ABOLISHED effective
+# 01 January 2022 (Notification 40/2021-CT).
+#
+# This rule is NOT evaluated generically like the others -- it is applied
+# by engine.py as a mandatory override on top of the base catalogue
+# evaluation. Kept in YAML (not hardcoded Python) so the exact legal
+# wording stays reviewable by the Tax Advisor and independently
+# versioned, even though the *trigger logic* (tax_period >= 01/2022) lives
+# in code.
+
+- rule_id: rule_36_4_date_gate
+  section: "Notification 40/2021-CT (01.01.2022)"
+  description: >-
+    Rule 36(4) provisional ITC (claiming ITC beyond the amount reflected
+    in GSTR-2B, subject to a percentage cap) was abolished effective
+    01 January 2022. For tax periods on or after 01/2022, an invoice
+    absent from GSTR-2B cannot be provisionally claimed and is ineligible
+    under Section 16(2)(aa).
+  version: "1.0"
+  last_reviewed: "2026-05-01"
+  reviewer: "Tax Advisor Name"
+  effective_date: "2022-01-01"
+  reason: >-
+    Rule 36(4) provisional ITC abolished 01.01.2022 (Notif 40/2021-CT).
+    Tax period {tax_period} is post-effective; verdict -> ineligible
+    (Sec 16(2)(aa)).
