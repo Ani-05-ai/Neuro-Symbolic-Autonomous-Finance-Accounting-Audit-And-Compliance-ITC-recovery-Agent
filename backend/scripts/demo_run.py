@@ -5,15 +5,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from datetime import date
 
-from itc.ingestion.gstr2b import parse_gstr2b
-from itc.ingestion.purchase_register import parse_register, mapping_from_tenant_profile
-from itc.rules.loader import load_catalogue
 from itc.agents.reconciliation import reconcile
+from itc.ingestion.gstr2b import parse_gstr2b
+from itc.ingestion.purchase_register import mapping_from_tenant_profile, parse_register
 from itc.intelligence.ollama_gateway import OllamaLLMGateway
 from itc.intelligence.schemas import VerdictExplanation
+from itc.rules.loader import load_catalogue
 
 catalogue = load_catalogue("itc/rules/catalogue")
-gstr2b_entries = parse_gstr2b(open("fixtures/gstr2b_tenant_a_062026.json", "rb").read())
+
+with open("fixtures/gstr2b_tenant_a_062026.json", "rb") as f:
+    gstr2b_entries = parse_gstr2b(f.read())
+
 mapping = mapping_from_tenant_profile("tenant_a", {
     "vendor_name": "Party Name",
     "vendor_gstin": "Party GSTIN",
@@ -24,7 +27,9 @@ mapping = mapping_from_tenant_profile("tenant_a", {
     "gst_amount": "GST Amount",
     "tax_period": "Period",
 })
-register = parse_register(open("fixtures/purchase_register_tenant_a.xlsx", "rb").read(), mapping)
+
+with open("fixtures/purchase_register_tenant_a.xlsx", "rb") as f:
+    register = parse_register(f.read(), mapping)
 
 cases = reconcile("tenant_a", gstr2b_entries, register.rows, catalogue, as_of_date=date.today())
 

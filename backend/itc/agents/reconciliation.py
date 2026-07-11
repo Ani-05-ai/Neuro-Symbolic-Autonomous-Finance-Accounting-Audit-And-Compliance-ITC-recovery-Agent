@@ -1,7 +1,7 @@
 """Reconciliation Agent -- Layer 3. A thin orchestrator: it never makes an
 eligibility decision itself, only calls the Rule Engine and acts on the
 verdict.
- 
+
 Per 02_LLD_ITC_Recovery_Agent (section 5.1):
     @app.task(bind=True)
     def reconcile(self, tenant_id, gstr2b_id, register_id):
@@ -13,7 +13,7 @@ Per 02_LLD_ITC_Recovery_Agent (section 5.1):
                 cases_repo.create(Case.from_(facts, verdict))
     # TEST (architectural): no path creates a Case without a Verdict object
     # TEST: idempotency -- re-running with the same inputs yields the same cases + one audit set
- 
+
 DOCUMENTED SCOPE CUT: the real Layer 1 (intelligence/extractor.py,
 resolver.py, matcher.py) does LLM-based extraction, vendor-name
 resolution, and FAISS-retrieve + LLM-rerank matching -- none of which are
@@ -28,30 +28,30 @@ isn't actually load-bearing for the exact/fuzzy-key cases it covers. It
 will NOT catch cases where the vendor_gstin itself was mistyped -- that
 genuinely needs the FAISS/LLM matcher this module is standing in for.
 """
- 
+
 from __future__ import annotations
- 
+
 import difflib
 from dataclasses import dataclass
 from datetime import date
- 
+
 from itc.domain.facts import InvoiceFacts, MatchResult
 from itc.domain.verdict import Verdict
 from itc.ingestion.gstr2b import Gstr2bEntry
 from itc.ingestion.purchase_register import RawRow
 from itc.rules.engine import evaluate
 from itc.rules.loader import RuleCatalogue
- 
+
 FUZZY_MATCH_THRESHOLD = 0.85  # difflib ratio; below this, treated as no_match
- 
- 
+
+
 @dataclass
 class ReconciliationCase:
     """Stand-in for the eventual `Case` domain model (domain/case.py) +
     DB persistence (cases_repo.create). Kept here rather than importing a
     not-yet-built Case model, so this Agent has a real, usable return
     value now rather than depending on unbuilt DB plumbing."""
- 
+
     tenant_id: str
     vendor_gstin: str
     invoice_number: str
@@ -61,8 +61,8 @@ class ReconciliationCase:
     match_result: MatchResult
     facts: InvoiceFacts
     verdict: Verdict
- 
- 
+
+
 def match_invoice(
     row: RawRow, gstr2b_by_vendor: dict[str, list[Gstr2bEntry]]
 ) -> MatchResult:
@@ -71,7 +71,7 @@ def match_invoice(
     first, then a fuzzy invoice-number match within the same vendor_gstin.
     """
     candidates = gstr2b_by_vendor.get(row.vendor_gstin, [])
- 
+
     for entry in candidates:
         if entry.invoice_number == row.invoice_number:
             return MatchResult(
@@ -80,7 +80,7 @@ def match_invoice(
                 method="exact_key",
                 match_score=1.0,
             )
- 
+
     best_score = 0.0
     best_entry: Gstr2bEntry | None = None
     for entry in candidates:
@@ -90,7 +90,7 @@ def match_invoice(
         if score > best_score:
             best_score = score
             best_entry = entry
- 
+
     if best_entry is not None and best_score >= FUZZY_MATCH_THRESHOLD:
         return MatchResult(
             matched_gstr2b_invoice_number=best_entry.invoice_number,
@@ -98,15 +98,15 @@ def match_invoice(
             method="fuzzy_invoice_number",
             match_score=round(best_score, 3),
         )
- 
+
     return MatchResult(
         matched_gstr2b_invoice_number=None,
         confidence="no_match",
         method="exact_key",  # no candidate crossed the fuzzy threshold either
         match_score=best_score if best_entry is not None else None,
     )
- 
- 
+
+
 def build_facts(
     tenant_id: str,
     row: RawRow,
@@ -124,7 +124,7 @@ def build_facts(
     """
     present_in_gstr2b = match_result.matched_gstr2b_invoice_number is not None
     supplier_has_any_filing = row.vendor_gstin in gstr2b_by_vendor
- 
+
     return InvoiceFacts(
         tenant_id=tenant_id,
         item_description_clean=row.item_description,
@@ -136,8 +136,8 @@ def build_facts(
         supplier_filed_gstr1=supplier_has_any_filing,
         as_of_date=as_of_date,
     )
- 
- 
+
+
 def reconcile(
     tenant_id: str,
     gstr2b_entries: list[Gstr2bEntry],
@@ -148,7 +148,7 @@ def reconcile(
     """Match every purchase register row against GSTR-2B, evaluate each
     against the Rule Engine, and return a Case for every non-eligible
     verdict.
- 
+
     Pure given its inputs (no I/O, no DB, no Celery) -- audit(...) and
     cases_repo.create(...) from the LLD's illustrative code are left to
     the caller (the real Celery task wrapper), which is what makes this
@@ -159,15 +159,15 @@ def reconcile(
     gstr2b_by_vendor: dict[str, list[Gstr2bEntry]] = {}
     for entry in gstr2b_entries:
         gstr2b_by_vendor.setdefault(entry.supplier_gstin, []).append(entry)
- 
+
     cases: list[ReconciliationCase] = []
- 
+
     for row in register_rows:
         match_result = match_invoice(row, gstr2b_by_vendor)
         facts = build_facts(tenant_id, row, match_result, gstr2b_by_vendor, as_of_date)
- 
+
         verdict = evaluate(facts, catalogue)  # Layer 2 -- the only place a decision is made
- 
+
         # TEST (architectural): no path creates a Case without a Verdict object --
         # verdict is computed unconditionally above, for every row, before this check.
         if verdict.verdict.value != "eligible":
@@ -184,5 +184,5 @@ def reconcile(
                     verdict=verdict,
                 )
             )
- 
+
     return cases

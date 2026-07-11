@@ -1,5 +1,5 @@
 """Load the YAML rule catalogue into a versioned, validated in-memory form.
- 
+
 Per 02_LLD_ITC_Recovery_Agent (section 3, rules/loader.py):
     class RuleCatalogue(BaseModel):
         version: str  # git commit hash of the catalogue dir
@@ -7,33 +7,33 @@ Per 02_LLD_ITC_Recovery_Agent (section 3, rules/loader.py):
     def load_catalogue(path: str) -> RuleCatalogue: ...
     def catalogue_version(path: str) -> str:  # `git rev-parse HEAD` over the dir
 """
- 
+
 from __future__ import annotations
- 
+
 import hashlib
 import subprocess
 from pathlib import Path
- 
+
 import yaml
 from pydantic import BaseModel
- 
- 
+
+
 class RuleCondition(BaseModel):
     """One condition within a rule. `kind` selects how engine.py evaluates it."""
- 
+
     kind: str  # "field_equals" | "time_bar" | "keyword_block"
     field: str | None = None
     value: bool | None = None
     blocked_keywords: list[str] | None = None
     deadline_month: int | None = None
     deadline_day: int | None = None
- 
- 
+
+
 class OnFail(BaseModel):
     verdict: str  # one of VerdictType's values
     reason: str  # template string, rendered against InvoiceFacts fields
- 
- 
+
+
 class RuleSpec(BaseModel):
     rule_id: str
     section: str
@@ -50,16 +50,16 @@ class RuleSpec(BaseModel):
     on_fail: OnFail | None = None
     reason: str | None = None
     effective_date: str | None = None
- 
- 
+
+
 class RuleCatalogue(BaseModel):
     version: str  # git commit hash of the catalogue dir
     rules: dict[str, RuleSpec]
- 
- 
+
+
 def catalogue_version(path: str) -> str:
     """`git rev-parse HEAD` over the catalogue directory.
- 
+
     Falls back to a content hash if the directory isn't inside a git
     checkout (e.g. a fresh clone before first commit, or a test fixture
     copied outside the repo) -- this keeps load_catalogue() usable in
@@ -83,11 +83,11 @@ def catalogue_version(path: str) -> str:
         for yaml_file in sorted(Path(path).glob("*.yaml")):
             hasher.update(yaml_file.read_bytes())
         return f"content-hash:{hasher.hexdigest()[:12]}"
- 
- 
+
+
 def load_catalogue(path: str) -> RuleCatalogue:
     """Load every *.yaml file in `path` into a single validated RuleCatalogue.
- 
+
     Each YAML file may contain either a single rule spec (a mapping) or a
     list of rule specs (section_16_2.yaml has four sub-clauses in one
     file) -- both forms are accepted and flattened into one rules dict
@@ -95,7 +95,7 @@ def load_catalogue(path: str) -> RuleCatalogue:
     """
     version = catalogue_version(path)
     rules: dict[str, RuleSpec] = {}
- 
+
     for yaml_file in sorted(Path(path).glob("*.yaml")):
         content = yaml.safe_load(yaml_file.read_text())
         if content is None:
@@ -109,6 +109,5 @@ def load_catalogue(path: str) -> RuleCatalogue:
                     f"{yaml_file} (already loaded from another file)"
                 )
             rules[spec.rule_id] = spec
- 
+
     return RuleCatalogue(version=version, rules=rules)
- 

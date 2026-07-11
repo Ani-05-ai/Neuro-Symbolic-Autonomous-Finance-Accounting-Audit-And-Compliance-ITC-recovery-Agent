@@ -32,7 +32,7 @@ dev = [
 # ----------------------------------------------------------------------
 [tool.ruff]
 target-version = "py313"
-line-length = 88
+line-length = 110   # was 88 — most flagged lines are LLD-reference comments/docstrings, not logic
 
 [tool.ruff.lint]
 select = [
@@ -52,6 +52,8 @@ select = [
 ]
 ignore = [
     "ANN401", # allow Any — needed in logging/gateway internals
+    "TC001",  # move-to-TYPE_CHECKING-block is purely cosmetic once __future__ annotations is used
+    "TC003",  # same — no runtime benefit here
 ]
 
 [tool.ruff.lint.per-file-ignores]
