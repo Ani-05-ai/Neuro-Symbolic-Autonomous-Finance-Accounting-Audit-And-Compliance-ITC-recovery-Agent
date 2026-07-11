@@ -180,6 +180,8 @@ def parse_gstr2b(file_bytes: bytes) -> list[Gstr2bEntry]:
                 continue
             if errors and errors[-1].startswith(inv_ctx):
                 continue
+            if supfildt is None or idt is None:
+                continue
 
             try:
                 entries.append(

@@ -74,8 +74,10 @@ def _evaluate_condition(cond: RuleCondition, facts: InvoiceFacts) -> bool:
     """True if the condition is satisfied (rule passes); False if it should
     trigger the rule's on_fail outcome."""
     if cond.kind == "field_equals":
+        if cond.field is None:
+            raise ValueError("field_equals condition must specify 'field'")
         actual = getattr(facts, cond.field)
-        return actual == cond.value
+        return bool(actual == cond.value)
 
     if cond.kind == "time_bar":
         deadline_year, month, day = _financial_year_end(facts.tax_period)
@@ -125,16 +127,19 @@ def _catalogue_evaluate(facts: InvoiceFacts, catalogue: RuleCatalogue) -> Verdic
             continue
 
         # Short-circuit: this rule failed, return immediately.
+        on_fail = spec.on_fail
+        if on_fail is None:
+            raise ValueError(f"rule {spec.rule_id} failed but has no on_fail spec")
         reason_chain.append(
             ReasonStep(
                 rule_id=spec.rule_id,
                 section=spec.section,
                 passed=False,
-                message=_render(spec.on_fail.reason, facts),
+                message=_render(on_fail.reason, facts),
             )
         )
         return Verdict(
-            verdict=VerdictType(spec.on_fail.verdict),
+            verdict=VerdictType(on_fail.verdict),
             reason_chain=reason_chain,
             catalogue_version=catalogue.version,
         )
@@ -170,6 +175,8 @@ def evaluate(facts: InvoiceFacts, catalogue: RuleCatalogue) -> Verdict:
         and _period_key(facts.tax_period) >= DATE_GATE_EFFECTIVE_PERIOD
     ):
         date_gate_spec = catalogue.rules["rule_36_4_date_gate"]
+        if date_gate_spec.reason is None:
+            raise ValueError("rule_36_4_date_gate is missing its 'reason' template")
         return Verdict(
             verdict=VerdictType.INELIGIBLE,
             reason_chain=[

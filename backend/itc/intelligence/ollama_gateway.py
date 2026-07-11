@@ -82,4 +82,5 @@ class OllamaLLMGateway(AbstractLLMGateway):
             timeout=60,
         )
         resp.raise_for_status()
-        return resp.json()["response"].strip()
+        data: dict[str, Any] = resp.json()
+        return str(data["response"]).strip()
