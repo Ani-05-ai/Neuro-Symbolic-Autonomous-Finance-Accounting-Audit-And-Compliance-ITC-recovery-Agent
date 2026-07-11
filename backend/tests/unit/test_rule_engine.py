@@ -28,7 +28,7 @@ from itc.rules.engine import evaluate
 from itc.rules.loader import load_catalogue
 
 CATALOGUE = load_catalogue(
-    str(Path(__file__).resolve().parent.parent / "rules" / "catalogue")
+    str(Path(__file__).resolve().parents[2] / "itc" / "rules" / "catalogue")
 )
 
 
