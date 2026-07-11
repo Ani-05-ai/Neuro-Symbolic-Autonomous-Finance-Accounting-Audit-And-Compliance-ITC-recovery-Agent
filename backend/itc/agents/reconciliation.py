@@ -54,6 +54,7 @@ class ReconciliationCase:
 
     tenant_id: str
     vendor_gstin: str
+    vendor_name: str
     invoice_number: str
     tax_period: str
     taxable_amount_inr: float
@@ -177,6 +178,7 @@ def reconcile(
                 ReconciliationCase(
                     tenant_id=tenant_id,
                     vendor_gstin=row.vendor_gstin,
+                    vendor_name=row.vendor_name,
                     invoice_number=row.invoice_number,
                     tax_period=row.tax_period,
                     taxable_amount_inr=row.taxable_amount,
