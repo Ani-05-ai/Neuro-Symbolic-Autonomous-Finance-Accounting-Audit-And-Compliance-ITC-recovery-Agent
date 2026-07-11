@@ -28,7 +28,9 @@ class MatchResult(BaseModel):
     """
 
     matched_gstr2b_invoice_number: str | None
-    confidence: str  # "exact" | "fuzzy" | "no_match" (real matcher adds LLM confidence bands)
+    confidence: (
+        str  # "exact" | "fuzzy" | "no_match" (real matcher adds LLM confidence bands)
+    )
     method: str  # "exact_key" | "fuzzy_invoice_number" | "faiss_llm_rerank" (not yet implemented)
     match_score: float | None = None  # similarity score, when fuzzy/FAISS
 

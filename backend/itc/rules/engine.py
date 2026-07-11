@@ -79,7 +79,9 @@ def _evaluate_condition(cond: RuleCondition, facts: InvoiceFacts) -> bool:
 
     if cond.kind == "time_bar":
         deadline_year, month, day = _financial_year_end(facts.tax_period)
-        deadline = date(deadline_year, cond.deadline_month or month, cond.deadline_day or day)
+        deadline = date(
+            deadline_year, cond.deadline_month or month, cond.deadline_day or day
+        )
         return facts.as_of_date <= deadline
 
     if cond.kind == "keyword_block":

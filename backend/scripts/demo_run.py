@@ -17,21 +17,26 @@ catalogue = load_catalogue("itc/rules/catalogue")
 with open("fixtures/gstr2b_tenant_a_062026.json", "rb") as f:
     gstr2b_entries = parse_gstr2b(f.read())
 
-mapping = mapping_from_tenant_profile("tenant_a", {
-    "vendor_name": "Party Name",
-    "vendor_gstin": "Party GSTIN",
-    "invoice_number": "Voucher No",
-    "invoice_date": "Voucher Date",
-    "item_description": "Item Name",
-    "taxable_amount": "Taxable Value",
-    "gst_amount": "GST Amount",
-    "tax_period": "Period",
-})
+mapping = mapping_from_tenant_profile(
+    "tenant_a",
+    {
+        "vendor_name": "Party Name",
+        "vendor_gstin": "Party GSTIN",
+        "invoice_number": "Voucher No",
+        "invoice_date": "Voucher Date",
+        "item_description": "Item Name",
+        "taxable_amount": "Taxable Value",
+        "gst_amount": "GST Amount",
+        "tax_period": "Period",
+    },
+)
 
 with open("fixtures/purchase_register_tenant_a.xlsx", "rb") as f:
     register = parse_register(f.read(), mapping)
 
-cases = reconcile("tenant_a", gstr2b_entries, register.rows, catalogue, as_of_date=date.today())
+cases = reconcile(
+    "tenant_a", gstr2b_entries, register.rows, catalogue, as_of_date=date.today()
+)
 
 gateway = OllamaLLMGateway()
 
@@ -50,5 +55,7 @@ for case in cases:
     print(explanation.explanation)
 
 # OUTSIDE the loop, same indentation as "for case in cases:"
-print(f"\n{len(cases)} flagged out of {len(register.rows)} total invoices "
-      f"({len(register.rows) - len(cases)} eligible, not shown)")
+print(
+    f"\n{len(cases)} flagged out of {len(register.rows)} total invoices "
+    f"({len(register.rows) - len(cases)} eligible, not shown)"
+)

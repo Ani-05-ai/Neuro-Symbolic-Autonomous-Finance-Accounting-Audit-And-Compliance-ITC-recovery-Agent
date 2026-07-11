@@ -77,7 +77,9 @@ class PurchaseRegisterValidationError(Exception):
 
     def __init__(self, errors: list[str]) -> None:
         self.errors = errors
-        super().__init__(f"{len(errors)} validation error(s) in purchase register upload")
+        super().__init__(
+            f"{len(errors)} validation error(s) in purchase register upload"
+        )
 
 
 class ParseRegisterResult(BaseModel):
@@ -203,7 +205,9 @@ def parse_register(file_bytes: bytes, mapping: ColumnMapping) -> ParseRegisterRe
     return ParseRegisterResult(rows=parsed_rows, duplicate_groups=duplicate_groups)
 
 
-def mapping_from_tenant_profile(tenant_id: str, columns: dict[str, str]) -> ColumnMapping:
+def mapping_from_tenant_profile(
+    tenant_id: str, columns: dict[str, str]
+) -> ColumnMapping:
     """Convenience constructor matching generate_purchase_register.py's
     TENANT_PROFILES[tenant_id]["columns"] shape, for wiring the two
     together during development/testing."""

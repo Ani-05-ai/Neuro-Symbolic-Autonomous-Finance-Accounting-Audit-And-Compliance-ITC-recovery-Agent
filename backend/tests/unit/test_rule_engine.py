@@ -27,7 +27,9 @@ from itc.domain.verdict import VerdictType
 from itc.rules.engine import evaluate
 from itc.rules.loader import load_catalogue
 
-CATALOGUE = load_catalogue(str(Path(__file__).resolve().parent.parent / "rules" / "catalogue"))
+CATALOGUE = load_catalogue(
+    str(Path(__file__).resolve().parent.parent / "rules" / "catalogue")
+)
 
 
 def make_facts(**overrides: object) -> InvoiceFacts:
@@ -82,14 +84,18 @@ def test_section_16_2_c_supplier_not_filed() -> None:
     reason = verdict.reason_chain[-1].message
     assert "29XYZAB5678C1Z9" in reason
     assert "03/2025" in reason
-    print("PASS: 16(2)(c) supplier_filed_gstr1=False -> ineligible, names GSTIN + period")
+    print(
+        "PASS: 16(2)(c) supplier_filed_gstr1=False -> ineligible, names GSTIN + period"
+    )
 
 
 def test_provisional_pre_2022() -> None:
     facts = make_facts(
         tax_period="03/2021",  # pre-01/2022 -> date gate does not apply
         present_in_gstr2b=False,
-        as_of_date=date(2021, 6, 1),  # within the 16(4) window (FY2020-21 -> 30 Nov 2021)
+        as_of_date=date(
+            2021, 6, 1
+        ),  # within the 16(4) window (FY2020-21 -> 30 Nov 2021)
     )
     verdict = evaluate(facts, CATALOGUE)
     assert verdict.verdict == VerdictType.PROVISIONAL
@@ -108,7 +114,9 @@ def test_ineligible_post_2022_date_gate() -> None:
 
 
 def test_date_gate_override_appends_notif_reference() -> None:
-    facts = make_facts(tax_period="03/2025", present_in_gstr2b=False, as_of_date=date(2025, 6, 1))
+    facts = make_facts(
+        tax_period="03/2025", present_in_gstr2b=False, as_of_date=date(2025, 6, 1)
+    )
     verdict = evaluate(facts, CATALOGUE)
     assert any("40/2021-CT" in step.message for step in verdict.reason_chain)
     assert verdict.reason_chain[-1].rule_id == "rule_36_4_date_gate"
@@ -132,12 +140,16 @@ def test_determinism_100x() -> None:
 
 
 def test_reason_template_renders_gstin_and_period() -> None:
-    facts = make_facts(supplier_filed_gstr1=False, vendor_gstin="33MNOPQ4321R1Z2", tax_period="07/2025")
+    facts = make_facts(
+        supplier_filed_gstr1=False, vendor_gstin="33MNOPQ4321R1Z2", tax_period="07/2025"
+    )
     verdict = evaluate(facts, CATALOGUE)
     reason = verdict.reason_chain[-1].message
     assert "33MNOPQ4321R1Z2" in reason
     assert "07/2025" in reason
-    assert "{vendor_gstin}" not in reason  # template placeholder must be rendered, not literal
+    assert (
+        "{vendor_gstin}" not in reason
+    )  # template placeholder must be rendered, not literal
     assert "{tax_period}" not in reason
     print("PASS: reason template renders {vendor_gstin}/{tax_period} from facts")
 

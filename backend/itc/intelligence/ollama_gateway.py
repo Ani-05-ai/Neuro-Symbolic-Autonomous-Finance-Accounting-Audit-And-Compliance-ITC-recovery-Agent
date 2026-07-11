@@ -44,7 +44,9 @@ class OllamaLLMGateway(AbstractLLMGateway):
                 f"Return ONLY valid JSON matching the schema, nothing else."
             )
             raw = self._generate(retry_prompt)
-            result = response_schema.model_validate_json(raw)  # let it raise if still bad
+            result = response_schema.model_validate_json(
+                raw
+            )  # let it raise if still bad
 
         self._traces.append(
             LLMTrace(
@@ -71,7 +73,12 @@ class OllamaLLMGateway(AbstractLLMGateway):
     def _generate(self, prompt: str) -> str:
         resp = httpx.post(
             OLLAMA_URL,
-            json={"model": self._model, "prompt": prompt, "stream": False, "format": "json"},
+            json={
+                "model": self._model,
+                "prompt": prompt,
+                "stream": False,
+                "format": "json",
+            },
             timeout=60,
         )
         resp.raise_for_status()

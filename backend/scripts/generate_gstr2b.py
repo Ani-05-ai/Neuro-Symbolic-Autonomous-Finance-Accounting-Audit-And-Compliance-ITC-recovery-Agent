@@ -30,8 +30,8 @@ VALID_STATE_CODES = [f"{i:02d}" for i in range(1, 39)]  # 01-38 per DS-1
 VALID_TAX_RATES = [0, 5, 12, 18, 28]  # only valid GST slabs per DS-1
 
 # Mismatch-injection rates, per DS-1 "Rules for synthetic generation":
-PCT_UNKNOWN_GSTIN = (0.10, 0.15)   # 10-15% GSTIN with no vendor match
-PCT_SUPPLIER_ONLY = 0.05           # 5% present in 2B only (not in purchase reg)
+PCT_UNKNOWN_GSTIN = (0.10, 0.15)  # 10-15% GSTIN with no vendor match
+PCT_SUPPLIER_ONLY = 0.05  # 5% present in 2B only (not in purchase reg)
 
 # NOTE: the "5-10% of entries with invoice amounts differing by +/-5%"
 # rule from DS-1 is intentionally NOT implemented here. GSTR-2B is this
@@ -134,7 +134,9 @@ def generate_invoice(period: str, rng: random.Random, fake: Faker) -> dict:
     """One invoice under a supplier's inv[] -- may carry multiple tax-rate line items."""
     interstate = rng.random() < 0.4
     num_line_items = rng.choices([1, 2, 3], weights=[0.7, 0.2, 0.1])[0]
-    used_rates = rng.sample(VALID_TAX_RATES, k=min(num_line_items, len(VALID_TAX_RATES)))
+    used_rates = rng.sample(
+        VALID_TAX_RATES, k=min(num_line_items, len(VALID_TAX_RATES))
+    )
 
     items = []
     for i, rate in enumerate(used_rates, start=1):
@@ -257,7 +259,9 @@ def generate_gstr2b(
     total_invoices = sum(len(inums) for _, inums in all_invoice_numbers_by_supplier)
     num_supplier_only = round(total_invoices * PCT_SUPPLIER_ONLY)
     flat_refs = [
-        (gstin, inum) for gstin, inums in all_invoice_numbers_by_supplier for inum in inums
+        (gstin, inum)
+        for gstin, inums in all_invoice_numbers_by_supplier
+        for inum in inums
     ]
     supplier_only_refs = rng.sample(flat_refs, k=min(num_supplier_only, len(flat_refs)))
 

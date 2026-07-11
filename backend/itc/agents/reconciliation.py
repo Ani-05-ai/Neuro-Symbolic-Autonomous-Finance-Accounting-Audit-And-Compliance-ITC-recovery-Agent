@@ -166,7 +166,9 @@ def reconcile(
         match_result = match_invoice(row, gstr2b_by_vendor)
         facts = build_facts(tenant_id, row, match_result, gstr2b_by_vendor, as_of_date)
 
-        verdict = evaluate(facts, catalogue)  # Layer 2 -- the only place a decision is made
+        verdict = evaluate(
+            facts, catalogue
+        )  # Layer 2 -- the only place a decision is made
 
         # TEST (architectural): no path creates a Case without a Verdict object --
         # verdict is computed unconditionally above, for every row, before this check.

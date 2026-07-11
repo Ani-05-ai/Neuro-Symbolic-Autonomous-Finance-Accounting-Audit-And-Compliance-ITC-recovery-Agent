@@ -471,7 +471,9 @@ def main() -> None:
     out_path = out_dir / f"purchase_register_{args.tenant_id}.xlsx"
     write_xlsx(rows, profile, out_path)
 
-    print(f"Wrote {len(rows)} rows ({profile['column_style']}-style headers) -> {out_path}")
+    print(
+        f"Wrote {len(rows)} rows ({profile['column_style']}-style headers) -> {out_path}"
+    )
 
 
 if __name__ == "__main__":
