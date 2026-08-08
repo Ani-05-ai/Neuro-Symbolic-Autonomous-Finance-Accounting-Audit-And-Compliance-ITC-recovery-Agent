@@ -1,3 +1,4 @@
+# this is domain/facts.py
 """InvoiceFacts -- the validated facts the Rule Engine consumes.
 
 Per 02_LLD_ITC_Recovery_Agent (section 2, domain/facts.py). Built by

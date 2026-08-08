@@ -1,3 +1,4 @@
+# this is ingestion/purchase_register.py
 """Parse and validate purchase register (.xlsx) uploads.
 
 Per 02_LLD_ITC_Recovery_Agent (section 6):

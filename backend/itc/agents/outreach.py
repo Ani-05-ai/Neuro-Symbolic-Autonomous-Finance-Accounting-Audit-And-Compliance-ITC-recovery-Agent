@@ -1,3 +1,4 @@
+# this is outreach.py
 """Outreach Agent -- Layer 3. Drafts vendor emails from ReconciliationCases.
 NEVER sends anything. Per the HLD: human approval gate is mandatory before
 any email leaves the system.

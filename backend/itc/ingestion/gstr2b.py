@@ -1,3 +1,4 @@
+# This is ingestion/gstr2b.py
 """Parse and validate GSTR-2B JSON uploads.
 
 Per 02_LLD_ITC_Recovery_Agent (section 6):

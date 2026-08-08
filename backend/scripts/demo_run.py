@@ -5,6 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from datetime import date
 
+from itc.agents.outreach import draft_outreach_batch
 from itc.agents.reconciliation import reconcile
 from itc.ingestion.gstr2b import parse_gstr2b
 from itc.ingestion.purchase_register import mapping_from_tenant_profile, parse_register
@@ -59,3 +60,13 @@ print(
     f"\n{len(cases)} flagged out of {len(register.rows)} total invoices "
     f"({len(register.rows) - len(cases)} eligible, not shown)"
 )
+
+print("\n\n=== Outreach Agent: drafting vendor emails (NOT sending) ===")
+drafts = draft_outreach_batch(cases, gateway)  # reuse the SAME gateway instance
+
+for draft in drafts:
+    print("\n--- DRAFT (awaiting human approval, NOT sent) ---")
+    print(f"To: {draft.vendor_name} ({draft.vendor_gstin})")
+    print(f"Subject: {draft.email.subject}")
+    print(draft.email.body)
+    print(f"Status: {draft.status}")

@@ -1,3 +1,4 @@
+# this is domain/outreach.py
 """Outreach domain models -- Layer 3 (Outreach Agent).
 
 Per the HLD: the Outreach Agent drafts vendor emails only. A human must

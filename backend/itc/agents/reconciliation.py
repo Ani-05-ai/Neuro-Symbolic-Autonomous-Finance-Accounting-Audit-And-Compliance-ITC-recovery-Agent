@@ -1,3 +1,4 @@
+# this is reconciliation.py
 """Reconciliation Agent -- Layer 3. A thin orchestrator: it never makes an
 eligibility decision itself, only calls the Rule Engine and acts on the
 verdict.

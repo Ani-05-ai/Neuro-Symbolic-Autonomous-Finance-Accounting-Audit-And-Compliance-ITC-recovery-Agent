@@ -1,3 +1,4 @@
+# this is domain/verdict.py
 """Verdict, ReasonStep, VerdictType -- the Rule Engine's output vocabulary.
 
 Per 02_LLD_ITC_Recovery_Agent (section 2, domain/verdict.py).

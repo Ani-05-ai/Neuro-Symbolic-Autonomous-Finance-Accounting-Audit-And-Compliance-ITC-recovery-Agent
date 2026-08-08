@@ -1,3 +1,4 @@
+#this is .pre-commit-config.yaml
 # Pre-commit hook configuration for the ITC monorepo.
 #
 # Runs on every `git commit`. CI runs `pre-commit run --all-files`.
