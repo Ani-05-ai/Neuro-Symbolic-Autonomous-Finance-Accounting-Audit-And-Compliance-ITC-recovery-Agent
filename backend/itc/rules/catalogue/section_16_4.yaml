@@ -1,0 +1,30 @@
+# Section 16(4) CGST Act 2017 -- time-bar on claiming ITC.
+#
+# SIMPLIFICATION (documented, not silent): the real deadline is the
+# *earlier* of (a) 30 November following the end of the financial year, or
+# (b) the date the annual return (GSTR-9) for that FY is actually filed.
+# This POC's InvoiceFacts has no field for "annual return filing date", so
+# only the fixed 30 November deadline (a) is modeled. This is a real
+# simplification worth flagging to the Tax Advisor before this catalogue
+# is used for anything beyond a demo -- (b) can make the deadline earlier
+# than 30 November for a tenant who files their annual return early.
+
+- rule_id: section_16_4_time_bar
+  section: "Section 16(4) CGST Act 2017"
+  description: >-
+    ITC must be claimed by 30 November following the end of the financial
+    year to which the invoice pertains. (Annual-return-filing-date
+    alternative deadline not modeled -- see note above.)
+  version: "1.0"
+  last_reviewed: "2026-05-01"
+  reviewer: "Tax Advisor Name"
+  conditions:
+    - kind: time_bar
+      deadline_month: 11
+      deadline_day: 30
+  on_fail:
+    verdict: time_barred
+    reason: >-
+      Invoice for tax period {tax_period} is time-barred under Section
+      16(4): the ITC claim deadline (30 November following the financial
+      year) has passed as of {as_of_date}.

@@ -1,0 +1,43 @@
+# Section 17(5) CGST Act 2017 -- blocked credit categories.
+#
+# SIMPLIFICATION (documented, not silent): real classification should use
+# HSN/SAC codes, which are not present anywhere in this system's data
+# model (GSTR-2B doesn't carry them at line-item level in this POC, and
+# the purchase register's item_description is free text). This rule
+# instead does keyword matching against item_description_clean, which is
+# a coarse approximation -- it will miss blocked items with unusual
+# wording and can false-positive on legitimate items that happen to share
+# a keyword (e.g. "food-grade steel pipe" would not match, but a genuine
+# edge case could exist). Worth reviewing with the Tax Advisor before this
+# is used for anything beyond a demo.
+ 
+- rule_id: section_17_5_blocked
+  section: "Section 17(5) CGST Act 2017"
+  description: >-
+    ITC is blocked for specified categories of goods/services regardless
+    of business use (motor vehicles for non-transport use, food &
+    beverages, club memberships, rent-a-cab, works contract services for
+    immovable property, etc.)
+  version: "1.0"
+  last_reviewed: "2026-05-01"
+  reviewer: "Tax Advisor Name"
+  conditions:
+    - kind: keyword_block
+      blocked_keywords:
+        - "motor vehicle"
+        - "motor car"
+        - "food and beverage"
+        - "outdoor catering"
+        - "beauty treatment"
+        - "health insurance"
+        - "life insurance"
+        - "club membership"
+        - "rent-a-cab"
+        - "works contract"
+        - "personal consumption"
+  on_fail:
+    verdict: blocked
+    reason: >-
+      Item description "{item_description_clean}" matches a Section 17(5)
+      blocked credit category; ITC is blocked regardless of business use.
+ 

@@ -1,0 +1,159 @@
+{
+  "tenant_id": "tenant_a",
+  "period": "062026",
+  "seed": 42,
+  "known_vendor_gstins": [
+    "02OSSKL2871N6ZH",
+    "10FTCJJ3204D7Z5",
+    "36HQXJE0679H2ZO",
+    "18LVEJR7606R4ZA",
+    "30JZQOR8720K7ZH",
+    "05FYWIR3942H9ZY",
+    "17TLPJZ1478E3ZR",
+    "05KPMGO9618Y5ZL",
+    "08HEASS9751U5ZW",
+    "13DTOUN0309Z5ZF",
+    "04GOCTV9516R3ZG",
+    "34WLFOS2396O9ZS",
+    "08GBAOP0700B6Z4",
+    "33GRFDY5478G2Z6",
+    "28JKWBQ6078D4ZC",
+    "13NDEMW0880U9Z0",
+    "06YWEMF4039I8ZI",
+    "28SSURM1207B6Z3",
+    "04PNWEY0156H7Z7",
+    "37GPQKP5927H5ZP",
+    "09RHITB4990G9ZG",
+    "09YWWJE8769U9Z0",
+    "36HRYDD1526W6ZD",
+    "17NGXBQ8031I3ZS",
+    "36SOCYR1035N3Z2",
+    "20JYZBJ6635N3ZF",
+    "11ZVWAT3988Z4ZH",
+    "11UCWWF8437H4Z1",
+    "13KHBUJ5683A2ZG",
+    "12PZAPI7491S4ZG",
+    "03SAYNS7630V6ZK",
+    "08SHIKK2149V3ZJ",
+    "26OAHLP6442P3Z5",
+    "19NQIVT6210H8Z4",
+    "30KQFSM2607Y2ZR",
+    "15EYNBG8486R6ZS",
+    "33LXLEW4782Y9ZV",
+    "16HCHHI5126W4Z4",
+    "27KOKFK9568Y7ZU",
+    "01YHKXV5778P4ZH",
+    "28MKRUS8995M1Z5",
+    "28DMBJF3737N5Z5",
+    "31AOZJQ7679G1Z9",
+    "16DROFS7167D3ZJ",
+    "07PYOXJ9158H2ZJ",
+    "08UOBNR0604P2ZR",
+    "24QVSLT9285P8ZR",
+    "38GWVCW2463A8ZK",
+    "12MJGHP8551H7ZV",
+    "36TRQMU0263S6ZU"
+  ],
+  "supplier_only_invoices": [
+    {
+      "ctin": "05FYWIR3942H9ZY",
+      "inum": "INV-1979-6132143"
+    },
+    {
+      "ctin": "05FYWIR3942H9ZY",
+      "inum": "GST-1980-6872601"
+    },
+    {
+      "ctin": "13NDEMW0880U9Z0",
+      "inum": "BILL-1976-57512"
+    },
+    {
+      "ctin": "36HRYDD1526W6ZD",
+      "inum": "BILL-2004-2845"
+    },
+    {
+      "ctin": "11ZVWAT3988Z4ZH",
+      "inum": "GST-2009-3844865"
+    },
+    {
+      "ctin": "08SHIKK2149V3ZJ",
+      "inum": "SL-2015-1974"
+    },
+    {
+      "ctin": "28JKWBQ6078D4ZC",
+      "inum": "INV-2009-23679"
+    },
+    {
+      "ctin": "05FYWIR3942H9ZY",
+      "inum": "GST-1976-9087337"
+    },
+    {
+      "ctin": "09YWWJE8769U9Z0",
+      "inum": "GST-2010-0830235"
+    },
+    {
+      "ctin": "02OSSKL2871N6ZH",
+      "inum": "INV-1986-11873"
+    },
+    {
+      "ctin": "16TPMTK1044P1ZQ",
+      "inum": "INV-1981-4964877"
+    },
+    {
+      "ctin": "30JZQOR8720K7ZH",
+      "inum": "GST-2000-553358"
+    },
+    {
+      "ctin": "16HCHHI5126W4Z4",
+      "inum": "BILL-1997-435722"
+    },
+    {
+      "ctin": "28MKRUS8995M1Z5",
+      "inum": "GST-1970-107330"
+    },
+    {
+      "ctin": "28SSURM1207B6Z3",
+      "inum": "SL-1983-35464448"
+    },
+    {
+      "ctin": "28MKRUS8995M1Z5",
+      "inum": "BILL-1972-6249"
+    },
+    {
+      "ctin": "17TLPJZ1478E3ZR",
+      "inum": "SL-1984-82571"
+    },
+    {
+      "ctin": "16TPMTK1044P1ZQ",
+      "inum": "GST-2024-1500"
+    },
+    {
+      "ctin": "09RHITB4990G9ZG",
+      "inum": "BILL-2007-376498"
+    },
+    {
+      "ctin": "11ZVWAT3988Z4ZH",
+      "inum": "SL-1988-6708"
+    },
+    {
+      "ctin": "19NQIVT6210H8Z4",
+      "inum": "GST-1975-2101798"
+    },
+    {
+      "ctin": "31FAEHC8334V5Z5",
+      "inum": "BILL-1981-9491"
+    },
+    {
+      "ctin": "15EYNBG8486R6ZS",
+      "inum": "BILL-1973-49011"
+    },
+    {
+      "ctin": "36HQXJE0679H2ZO",
+      "inum": "SL-1976-09576"
+    },
+    {
+      "ctin": "17TLPJZ1478E3ZR",
+      "inum": "GST-2013-76703"
+    }
+  ]
+}
